@@ -1,7 +1,19 @@
 /* eslint-disable no-case-declarations */
+const fs = require('fs');
 const Discord = require('discord.js');
-const client = new Discord.Client();
 const { prefix, token } = require('./config.json');
+
+const client = new Discord.Client();
+client.commands = new Discord.Collection();
+
+const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+for (const file of commandFiles) {
+	const command = require(`./commands/${file}`);
+
+	// set a new item in the Collection
+	// with the key as the command name and the value as the exported module
+	client.commands.set(command.name, command);
+}
 
 // when client is ready
 client.on('ready', () => {
@@ -13,26 +25,22 @@ client.on('message', msg => {
 	if (!msg.content.startsWith(prefix) || msg.author.bot) return;
 
 	const args = msg.content.slice(prefix.length).split(/ +/);
-	const cmd = args.shift().toLowerCase(); // take first arg and remove it
+	const commandName = args.shift().toLowerCase(); // take first arg and remove it
 
-	switch(cmd) {
-	case 'ping':
-		msg.reply('Pong!');
-		break;
-	case 'args-info':
-		if (!args.length) {
-			return msg.channel.send(`Not enough arguments, ${msg.author}!`);
-		}
-		msg.channel.send(`Command name: ${cmd}\nArguments: ${args}`);
-		break;
-	case 'kick':
-		if (!msg.mentions.users.size) {
-			return msg.reply('you need to tag a user in order to kick them!');
-		}
+	if (!client.commands.has(commandName)) return;
 
-		const taggedUser = msg.mentions.users.first();
-		msg.channel.send(`You wanted to kick: ${taggedUser.username}`);
-		break;
+	const command = client.commands.get(commandName);
+
+	if (command.args && !args.length) {
+		return msg.channel.send(`You didn't provide any arguments, ${msg.author}`);
+	}
+
+	try {
+		command.execute(msg, args);
+	}
+	catch (error) {
+		console.log(error);
+		msg.reply('there was an error trying to execute that command!');
 	}
 
 });
