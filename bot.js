@@ -1,62 +1,42 @@
-
-/*const Discord = require('discord.io');
-const logger = require('winston');
-const auth = require('./auth.json');
-
-// Configure logger settings
-logger.remove(logger.transports.Console);
-logger.add(new logger.transports.Console, {
-    colorize: true
-});
-logger.level = 'debug';
-
-// Initialize Discord Bot
-const bot = new Discord.Client({
-   token: auth.token,
-   autorun: true
-});
-
-bot.on('ready', function (evt) {
-    logger.info('Connected');
-    logger.info('Logged in as: ');
-    logger.info(bot.username + ' - (' + bot.id + ')');
-});
-
-bot.on('message', function (user, userID, channelID, message, evt) {
-    // Our bot needs to know if it will execute a command
-    // It will listen for messages that will start with `!`
-    if (message.substring(0, 1) == '!') {
-        let args = message.substring(1).split(' ');
-        const cmd = args[0];
-       
-        args = args.splice(1);
-        switch(cmd) {
-            // !ping
-            case 'ping':
-                bot.sendMessage({
-                    to: channelID,
-                    message: 'Pong!'
-                });
-            break;
-            // Just add any case commands if you want to..
-         }
-     }
-});*/
-
+/* eslint-disable no-case-declarations */
 const Discord = require('discord.js');
 const client = new Discord.Client();
-const auth = require('./auth.json');
+const { prefix, token } = require('./config.json');
 
+// when client is ready
 client.on('ready', () => {
-  console.log(`Logged in as ${client.user.tag}!`);
+	console.log(`Logged in as ${client.user.tag}!`);
 });
 
+// listen to messages
 client.on('message', msg => {
-  if (msg.content === 'ping') {
-    msg.reply('Pong!');
-  }
+	if (!msg.content.startsWith(prefix) || msg.author.bot) return;
+
+	const args = msg.content.slice(prefix.length).split(/ +/);
+	const cmd = args.shift().toLowerCase(); // take first arg and remove it
+
+	switch(cmd) {
+	case 'ping':
+		msg.reply('Pong!');
+		break;
+	case 'args-info':
+		if (!args.length) {
+			return msg.channel.send(`Not enough arguments, ${msg.author}!`);
+		}
+		msg.channel.send(`Command name: ${cmd}\nArguments: ${args}`);
+		break;
+	case 'kick':
+		if (!msg.mentions.users.size) {
+			return msg.reply('you need to tag a user in order to kick them!');
+		}
+
+		const taggedUser = msg.mentions.users.first();
+		msg.channel.send(`You wanted to kick: ${taggedUser.username}`);
+		break;
+	}
+
 });
 
-client.login(auth.token);
+// login to Discord with your app's token
+client.login(token);
 
-// https://discord.js.org/#/docs/main/stable/general/welcome

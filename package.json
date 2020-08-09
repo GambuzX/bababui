@@ -3,5 +3,9 @@
 	"version": "1.0.0",
 	"description": "voice slave bot",
 	"author": "gamers",
-	"dependencies": {}
+	"dependencies": {
+		"@discordjs/opus": "^0.3.2",
+		"discord.js": "^12.2.0",
+		"eslint": "^7.6.0"
+	}
 }
