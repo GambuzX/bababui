@@ -16,35 +16,100 @@ for (const file of commandFiles) {
 }
 
 // when client is ready
-client.on('ready', () => {
+ client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
 });
 
-// listen to messages
+// login to Discord with your app's token
+/*
+client.on('message', async message => {
+	const channel = message.member.voice.channel;
+	if (channel) {
+		console.log(`Joining voice channel ${channel}`);
+		const connection = await channel.join();
+
+		user_id = message.author.id;
+		const audio = connection.receiver.createStream(user_id, { mode: 'opus', end: 'manual' });
+		audio.pipe(fs.createWriteStream('user_audio'));		
+	}
+});*/
+
+function generateOutputFile(channel, member) {
+	// use IDs instead of username cause some people have stupid emojis in their name
+	const fileName = `./recordings/${channel.id}-${member.id}-${Date.now()}.pcm`;
+	return fs.createWriteStream(fileName);
+}
+  
 client.on('message', msg => {
-	if (!msg.content.startsWith(prefix) || msg.author.bot) return;
+	if (msg.content.startsWith(prefix+'join')) {
+		let [command, ...channelName] = msg.content.split(" ");
 
-	const args = msg.content.slice(prefix.length).split(/ +/);
-	const commandName = args.shift().toLowerCase(); // take first arg and remove it
+		/*if (!msg.guild) {
+			return msg.reply('no private service is available in your area at the moment. Please contact a service representative for more details.');
+		}*/
 
-	if (!client.commands.has(commandName)) return;
+		/*console.log(msg.guild)
+		console.log("\n\n")
+		console.log(msg.guild.channels)
+		console.log("\n\n")
+		console.log(msg.guild.channels.guild.name)
+		console.log("\n\n")*/
+		const voiceChannel = msg.member.voice.channel;
+		//const voiceChannel = msg.guild.channels.find("name", channelName.join(" "));
+		//console.log(voiceChannel.id);
 
-	const command = client.commands.get(commandName);
+		if (!voiceChannel) {
+			return msg.reply(`I couldn't find the channel ${channelName}. Can you spell?`);
+		}
 
-	if (command.args && !args.length) {
-		return msg.channel.send(`You didn't provide any arguments, ${msg.author}`);
+		voiceChannel.join()
+		.then(conn => {
+			msg.reply(` give me your commands!`);
+			
+			const dispatcher = conn.play('hello.mp3');
+			dispatcher.on('error', console.error);
+			dispatcher.on('finish', () => {
+				console.log("Finished hello");
+
+				// create our voice receiver
+				const receiver = conn.receiver;
+	
+				conn.on('speaking', (user, speaking) => {
+					console.log("oi");
+					if (speaking) {
+						msg.channel.sendMessage(`I'm listening to ${user}`);
+	
+						// this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
+						const audioStream = receiver.createPCMStream(user);
+						
+						// create an output stream so we can dump our data in a file
+						const outputStream = generateOutputFile(voiceChannel, user);
+						
+						// pipe our audio data into the file stream
+						audioStream.pipe(outputStream);
+						outputStream.on("data", console.log);
+						
+						// when the stream ends (the user stopped talking) tell the user
+						audioStream.on('end', () => {
+							msg.channel.sendMessage(`I'm no longer listening to ${user}`);
+						});
+					}
+				});
+
+			});
+		})
+		.catch(console.log);
 	}
 
-	try {
-		command.execute(msg, args);
+	if (msg.content.startsWith(prefix+'leave')) {
+		let [command, ...channelName] = msg.content.split(" ");
+		const voiceChannel = msg.member.voice.channel;
+		//let voiceChannel = msg.guild.channels.find("name", channelName.join(" "));
+		voiceChannel.leave();
 	}
-	catch (error) {
-		console.log(error);
-		msg.reply('there was an error trying to execute that command!');
-	}
-
 });
 
-// login to Discord with your app's token
+
 client.login(token);
+
 
