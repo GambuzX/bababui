@@ -34,32 +34,28 @@ client.on('message', async message => {
 	}
 });*/
 
-function generateOutputFile(channel, member) {
+function generateOutputFile(recordings_dir, filename, channel, member) {
+	if(!fs.exists(recordings_dir)){
+		fs.mkdir(recordings_dir, 0766, function(err){
+			if(err){
+				console.log(err);
+				// echo the result back
+				response.send("ERROR! Can't make the directory! \n");
+			}
+		});
+	}
+
 	// use IDs instead of username cause some people have stupid emojis in their name
-	const fileName = `./recordings/${channel.id}-${member.id}-${Date.now()}.pcm`;
-	return fs.createWriteStream(fileName);
+	return fs.createWriteStream(filename);
 }
   
 client.on('message', msg => {
 	if (msg.content.startsWith(prefix+'join')) {
-		let [command, ...channelName] = msg.content.split(" ");
-
-		/*if (!msg.guild) {
-			return msg.reply('no private service is available in your area at the moment. Please contact a service representative for more details.');
-		}*/
-
-		/*console.log(msg.guild)
-		console.log("\n\n")
-		console.log(msg.guild.channels)
-		console.log("\n\n")
-		console.log(msg.guild.channels.guild.name)
-		console.log("\n\n")*/
+		// let [command, ...channelName] = msg.content.split(" ");
 		const voiceChannel = msg.member.voice.channel;
-		//const voiceChannel = msg.guild.channels.find("name", channelName.join(" "));
-		//console.log(voiceChannel.id);
 
 		if (!voiceChannel) {
-			return msg.reply(`I couldn't find the channel ${channelName}. Can you spell?`);
+			return msg.reply(`I couldn't find the channel ${voiceChannel}. Can you spell?`);
 		}
 
 		voiceChannel.join()
@@ -75,12 +71,15 @@ client.on('message', msg => {
 				const receiver = conn.receiver;
 	
 				conn.on('speaking', (user, speaking) => {
-					console.log("oi");
+					console.log(speaking);
 					if (speaking) {
-						msg.channel.sendMessage(`I'm listening to ${user}`);
+						msg.channel.send(`I'm listening to ${user}`);
 	
 						// this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
-						const audioStream = receiver.createPCMStream(user);
+						const audioStream = receiver.createStream(user, {mode: 'pcm'});
+
+						const recordings_dir = "./recordings"
+						const filename = `${recordings_dir}/${channel.id}-${member.id}-${Date.now()}.pcm`;
 						
 						// create an output stream so we can dump our data in a file
 						const outputStream = generateOutputFile(voiceChannel, user);
@@ -91,7 +90,11 @@ client.on('message', msg => {
 						
 						// when the stream ends (the user stopped talking) tell the user
 						audioStream.on('end', () => {
-							msg.channel.sendMessage(`I'm no longer listening to ${user}`);
+							msg.channel.send(`I'm no longer listening to ${user}`);
+							const file_stats = fs.stat(filename);
+							if (file_stats["size"] == 0) {
+								fs.unlink(filename);
+							}
 						});
 					}
 				});
@@ -102,9 +105,7 @@ client.on('message', msg => {
 	}
 
 	if (msg.content.startsWith(prefix+'leave')) {
-		let [command, ...channelName] = msg.content.split(" ");
 		const voiceChannel = msg.member.voice.channel;
-		//let voiceChannel = msg.guild.channels.find("name", channelName.join(" "));
 		voiceChannel.leave();
 	}
 });
@@ -112,4 +113,4 @@ client.on('message', msg => {
 
 client.login(token);
 
-
+// TODO make this async?? method may need to change
