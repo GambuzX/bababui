@@ -2,6 +2,7 @@
 const fs = require('fs');
 const Discord = require('discord.js');
 const { prefix, token } = require('./config.json');
+const stt = require('./speech_to_text.js');
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -16,23 +17,9 @@ for (const file of commandFiles) {
 }
 
 // when client is ready
- client.on('ready', () => {
+client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
 });
-
-// login to Discord with your app's token
-/*
-client.on('message', async message => {
-	const channel = message.member.voice.channel;
-	if (channel) {
-		console.log(`Joining voice channel ${channel}`);
-		const connection = await channel.join();
-
-		user_id = message.author.id;
-		const audio = connection.receiver.createStream(user_id, { mode: 'opus', end: 'manual' });
-		audio.pipe(fs.createWriteStream('user_audio'));		
-	}
-});*/
 
 async function generateOutputFile(recordings_dir, filename, channel, member) {
 	fs.access(recordings_dir, fs.constants.F_OK, (err) => {
@@ -73,35 +60,38 @@ client.on('message', msg => {
 				const receiver = conn.receiver;
 	
 				conn.on('speaking', async (user, speaking) => {
-					console.log(speaking);
-					if (speaking) {
-						console.log(`I'm listening to ${user}`);
-	
-						// this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
-						const audioStream = receiver.createStream(user, {mode: 'pcm'});
 
-						const recordings_dir = "./recordings"
-						const filename = `${recordings_dir}/${voiceChannel.id}-${user.id}-${Date.now()}.pcm`;
-						
-						// create an output stream so we can dump our data in a file
-						const outputStream = await generateOutputFile(recordings_dir, filename, voiceChannel, user);
-						
-						// pipe our audio data into the file stream
-						audioStream.pipe(outputStream);
-						outputStream.on("data", console.log);
+					if(!speaking) return;
 
-						// when the stream ends (the user stopped talking) tell the user
-						audioStream.on('end', () => {
-							console.log(`I'm no longer listening to ${user}`);
+					console.log(`I'm listening to ${user}`);
 
-							// delete recording if empty
-							fs.stat(filename, (err, stats) => {
-								if(!err && stats["size"] == 0) {
-									fs.unlink(filename, () => {})
-								}
-							});
-						});
-					}
+					// this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
+					const audioStream = receiver.createStream(user, {mode: 'pcm'});
+
+					const recordings_dir = "./recordings"
+					const filename = `${recordings_dir}/${voiceChannel.id}-${user.id}-${Date.now()}.pcm`;
+					
+					// create an output stream so we can dump our data in a file
+					const outputStream = await generateOutputFile(recordings_dir, filename, voiceChannel, user);
+					
+					// pipe our audio data into the file stream
+					audioStream.pipe(outputStream);
+					outputStream.on("data", console.log);
+
+					// when the stream ends (the user stopped talking) tell the user
+					audioStream.on('end', async () => {
+						console.log(`I'm no longer listening to ${user}`);
+
+						// delete recording if empty
+						const stats = fs.statSync(filename);
+						if(stats["size"] == 0) {
+							fs.unlink(filename, () => {});
+							return;
+						}
+
+						voice_command = await stt.getText(filename);
+						console.log(voice_command);
+					});
 				});
 
 			});
