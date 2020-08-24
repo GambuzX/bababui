@@ -21,15 +21,12 @@ client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
 });
 
-async function generateOutputFile(recordings_dir, filename, channel, member) {
+async function generateOutputFile(recordings_dir, filename) {
 	fs.access(recordings_dir, fs.constants.F_OK, (err) => {
+		// create dir if it does not exist
 		if(err) {
 			fs.mkdir(recordings_dir, 0766, function(err){
-				if(err){
-					console.log(err);
-					// echo the result back
-					response.send("ERROR! Can't make the directory! \n");
-				}
+				if(err) console.log(err);
 			});
 		}
 	});
@@ -44,18 +41,18 @@ client.on('message', msg => {
 		const voiceChannel = msg.member.voice.channel;
 
 		if (!voiceChannel) {
-			return msg.reply(`I couldn't find the channel ${voiceChannel}. Can you spell?`);
+			return msg.reply(`you must be in a voice channel`);
 		}
 
 		voiceChannel.join()
 		.then(conn => {
-			msg.reply(` give me your commands!`);
+			msg.reply(`speak your wishes!`);
 			
+			// play hello clip
 			const dispatcher = conn.play('hello.mp3');
 			dispatcher.on('error', console.error);
-			dispatcher.on('finish', () => {
-				console.log("Finished hello");
 
+			dispatcher.on('finish', () => {
 				// create our voice receiver
 				const receiver = conn.receiver;
 	
@@ -63,16 +60,13 @@ client.on('message', msg => {
 
 					if(!speaking) return;
 
-					console.log(`I'm listening to ${user}`);
-
 					// this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
 					const audioStream = receiver.createStream(user, {mode: 'pcm'});
-
-					const recordings_dir = "./recordings"
-					const filename = `${recordings_dir}/${voiceChannel.id}-${user.id}-${Date.now()}.pcm`;
 					
 					// create an output stream so we can dump our data in a file
-					const outputStream = await generateOutputFile(recordings_dir, filename, voiceChannel, user);
+					const recordings_dir = "./recordings"
+					const filename = `${recordings_dir}/${voiceChannel.id}-${user.id}-${Date.now()}.pcm`;
+					const outputStream = await generateOutputFile(recordings_dir, filename);
 					
 					// pipe our audio data into the file stream
 					audioStream.pipe(outputStream);
@@ -80,7 +74,6 @@ client.on('message', msg => {
 
 					// when the stream ends (the user stopped talking) tell the user
 					audioStream.on('end', async () => {
-						console.log(`I'm no longer listening to ${user}`);
 
 						// delete recording if empty
 						const stats = fs.statSync(filename);
@@ -88,9 +81,26 @@ client.on('message', msg => {
 							fs.unlink(filename, () => {});
 							return;
 						}
-
+						
+						// speech to text
 						voice_command = await stt.getText(filename);
-						console.log(voice_command);
+						voice_command = voice_command.toLowerCase();
+						
+						// unknown command
+						if(!client.commands.has(voice_command)) {
+							msg.channel.send(`Unknown command '${voice_command}'`);
+							return;
+						}
+
+						const command = client.commands.get(voice_command);
+						try {
+							command.execute(msg);
+						}
+						catch (err) {
+							console.log(err);
+							msg.reply('there was an error while executing that command!');
+						}
+
 					});
 				});
 
@@ -107,3 +117,8 @@ client.on('message', msg => {
 
 
 client.login(token);
+
+// TODO / ideas
+// more commands
+// commands with arguments?
+// word similarity algorithms when command is unkown
