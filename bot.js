@@ -34,16 +34,18 @@ client.on('message', async message => {
 	}
 });*/
 
-function generateOutputFile(recordings_dir, filename, channel, member) {
-	if(!fs.exists(recordings_dir)){
-		fs.mkdir(recordings_dir, 0766, function(err){
-			if(err){
-				console.log(err);
-				// echo the result back
-				response.send("ERROR! Can't make the directory! \n");
-			}
-		});
-	}
+async function generateOutputFile(recordings_dir, filename, channel, member) {
+	fs.access(recordings_dir, fs.constants.F_OK, (err) => {
+		if(err) {
+			fs.mkdir(recordings_dir, 0766, function(err){
+				if(err){
+					console.log(err);
+					// echo the result back
+					response.send("ERROR! Can't make the directory! \n");
+				}
+			});
+		}
+	});
 
 	// use IDs instead of username cause some people have stupid emojis in their name
 	return fs.createWriteStream(filename);
@@ -70,31 +72,34 @@ client.on('message', msg => {
 				// create our voice receiver
 				const receiver = conn.receiver;
 	
-				conn.on('speaking', (user, speaking) => {
+				conn.on('speaking', async (user, speaking) => {
 					console.log(speaking);
 					if (speaking) {
-						msg.channel.send(`I'm listening to ${user}`);
+						console.log(`I'm listening to ${user}`);
 	
 						// this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
 						const audioStream = receiver.createStream(user, {mode: 'pcm'});
 
 						const recordings_dir = "./recordings"
-						const filename = `${recordings_dir}/${channel.id}-${member.id}-${Date.now()}.pcm`;
+						const filename = `${recordings_dir}/${voiceChannel.id}-${user.id}-${Date.now()}.pcm`;
 						
 						// create an output stream so we can dump our data in a file
-						const outputStream = generateOutputFile(voiceChannel, user);
+						const outputStream = await generateOutputFile(recordings_dir, filename, voiceChannel, user);
 						
 						// pipe our audio data into the file stream
 						audioStream.pipe(outputStream);
 						outputStream.on("data", console.log);
-						
+
 						// when the stream ends (the user stopped talking) tell the user
 						audioStream.on('end', () => {
-							msg.channel.send(`I'm no longer listening to ${user}`);
-							const file_stats = fs.stat(filename);
-							if (file_stats["size"] == 0) {
-								fs.unlink(filename);
-							}
+							console.log(`I'm no longer listening to ${user}`);
+
+							// delete recording if empty
+							fs.stat(filename, (err, stats) => {
+								if(!err && stats["size"] == 0) {
+									fs.unlink(filename, () => {})
+								}
+							});
 						});
 					}
 				});
@@ -112,5 +117,3 @@ client.on('message', msg => {
 
 
 client.login(token);
-
-// TODO make this async?? method may need to change
