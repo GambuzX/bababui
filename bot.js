@@ -34,6 +34,27 @@ async function generateOutputFile(recordings_dir, filename) {
 	// use IDs instead of username cause some people have stupid emojis in their name
 	return fs.createWriteStream(filename);
 }
+
+async function handleVoiceCommand(msg, voice_command) {
+	voice_command = voice_command.toLowerCase();
+	const args = voice_command.split(/ +/);
+	const command_name = args.shift(); // take first arg and remove it	
+
+	// unknown command
+	if(!client.commands.has(command_name)) {
+		msg.channel.send(`Unknown command '${command_name}'`);
+		return;
+	}
+
+	const command = client.commands.get(command_name);
+	try {
+		command.execute(msg, args);
+	}
+	catch (err) {
+		console.log(err);
+		msg.reply('there was an error while executing that command!');
+	}
+}
   
 client.on('message', msg => {
 	if (msg.content.startsWith(prefix+'join')) {
@@ -49,7 +70,7 @@ client.on('message', msg => {
 			msg.reply(`speak your wishes!`);
 			
 			// play hello clip
-			const dispatcher = conn.play('hello.mp3');
+			const dispatcher = conn.play('./sounds/hello.mp3');
 			dispatcher.on('error', console.error);
 
 			dispatcher.on('finish', () => {
@@ -84,24 +105,22 @@ client.on('message', msg => {
 						
 						// speech to text
 						voice_command = await stt.getText(filename);
-						voice_command = voice_command.toLowerCase();
-						
-						// unknown command
-						if(!client.commands.has(voice_command)) {
-							msg.channel.send(`Unknown command '${voice_command}'`);
-							return;
-						}
 
-						const command = client.commands.get(voice_command);
-						try {
-							command.execute(msg);
-						}
-						catch (err) {
-							console.log(err);
-							msg.reply('there was an error while executing that command!');
-						}
+						// delete sound file
+						fs.unlink(filename, () => {});
+						if (voice_command.length == 0) return;
 
+						conn.play('./sounds/beep.mp3');
+						handleVoiceCommand(msg, voice_command);
 					});
+				});
+
+				conn.on('error', (error) => {
+					console.log(error);
+				});
+
+				conn.on('disconnect', () => {
+					console.log("disconnected");
 				});
 
 			});
@@ -119,6 +138,4 @@ client.on('message', msg => {
 client.login(token);
 
 // TODO / ideas
-// more commands
-// commands with arguments?
-// word similarity algorithms when command is unkown
+// word similarity algorithms when command is unknown
