@@ -35,7 +35,7 @@ async function generateOutputFile(recordings_dir, filename) {
 	return fs.createWriteStream(filename);
 }
 
-async function handleVoiceCommand(msg, voice_command) {
+async function handleVoiceCommand(msg, voice_command, connection) {
 	voice_command = voice_command.toLowerCase();
 	const args = voice_command.split(/ +/);
 	const command_name = args.shift(); // take first arg and remove it	
@@ -48,7 +48,7 @@ async function handleVoiceCommand(msg, voice_command) {
 
 	const command = client.commands.get(command_name);
 	try {
-		command.execute(msg, args);
+		command.execute(msg, args, connection);
 	}
 	catch (err) {
 		console.log(err);
@@ -67,7 +67,7 @@ client.on('message', msg => {
 
 		voiceChannel.join()
 		.then(conn => {
-			msg.reply(`speak your wishes!`);
+			msg.reply(`give me orders!`);
 			
 			// play hello clip
 			const dispatcher = conn.play('./sounds/hello.mp3');
@@ -110,8 +110,8 @@ client.on('message', msg => {
 						fs.unlink(filename, () => {});
 						if (voice_command.length == 0) return;
 
-						conn.play('./sounds/beep.mp3');
-						handleVoiceCommand(msg, voice_command);
+						//conn.play('./sounds/beep.mp3');
+						handleVoiceCommand(msg, voice_command, conn);
 					});
 				});
 
