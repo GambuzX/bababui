@@ -41,12 +41,12 @@ async function handleVoiceCommand(msg, voice_command, connection) {
 	const command_name = args.shift(); // take first arg and remove it	
 
 	// unknown command
-	if(!client.commands.has(command_name)) {
-		msg.channel.send(`Unknown command '${command_name}'`);
+	if(!client.commands.has(command_name) && !client.commands.has(voice_command)) {
+		msg.channel.send(`Unknown command '${voice_command}'`);
 		return;
 	}
 
-	const command = client.commands.get(command_name);
+	const command = client.commands.get(command_name) || client.commands.get(voice_command);
 	try {
 		command.execute(msg, args, connection);
 	}
@@ -68,6 +68,7 @@ client.on('message', msg => {
 		voiceChannel.join()
 		.then(conn => {
 			msg.reply(`give me orders!`);
+			msg.channel.send("Say 'help' for more details");
 			
 			// play hello clip
 			const dispatcher = conn.play('./sounds/hello.mp3');
@@ -131,6 +132,20 @@ client.on('message', msg => {
 	if (msg.content.startsWith(prefix+'leave')) {
 		const voiceChannel = msg.member.voice.channel;
 		voiceChannel.leave();
+	}
+
+	if (msg.content.startsWith(prefix+'help')) {
+		let helpEmbed = new Discord.MessageEmbed()
+            .setColor('#0099ff')
+            .setTitle('bababui Help :monkey:')
+			.setDescription('List of text commands I understand')
+			.addFields(
+				{ name: '!join', value: 'Join voice channel of the user who sent the command' },
+				{ name: '!leave', value: 'Leave the voice channel'},
+				{ name: '!help', value: 'Display this help'},
+			);
+    
+        msg.channel.send(helpEmbed);
 	}
 });
 
