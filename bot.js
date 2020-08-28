@@ -55,7 +55,8 @@ async function handleVoiceCommand(msg, voice_command, connection) {
 		msg.reply('there was an error while executing that command!');
 	}
 }
-  
+
+connections = {}
 client.on('message', msg => {
 	if (msg.content.startsWith(prefix+'join')) {
 		// let [command, ...channelName] = msg.content.split(" ");
@@ -67,12 +68,19 @@ client.on('message', msg => {
 
 		voiceChannel.join()
 		.then(conn => {
+			connections[msg.author.username] = conn;
+
 			msg.reply(`give me orders!`);
 			msg.channel.send("Say 'help' for more details");
 			
 			// play hello clip
 			const dispatcher = conn.play('./sounds/hello.mp3');
 			dispatcher.on('error', console.error);
+			
+			// keep connection alive
+			setInterval(() => {
+				conn.play('./sounds/silence.mp3');
+			}, 10000);
 
 			dispatcher.on('finish', () => {
 				// create our voice receiver
@@ -130,8 +138,16 @@ client.on('message', msg => {
 	}
 
 	if (msg.content.startsWith(prefix+'leave')) {
-		const voiceChannel = msg.member.voice.channel;
-		voiceChannel.leave();
+		const user_connection = connections[msg.author.username];
+		if (!user_connection) return;
+
+		user_connection.disconnect();
+		delete connections[msg.author.username];
+
+		if (Object.keys(connections).length == 0) {
+			const voiceChannel = msg.member.voice.channel;
+			voiceChannel.leave();
+		}
 	}
 
 	if (msg.content.startsWith(prefix+'help')) {
@@ -151,6 +167,3 @@ client.on('message', msg => {
 
 
 client.login(token);
-
-// TODO / ideas
-// word similarity algorithms when command is unknown
