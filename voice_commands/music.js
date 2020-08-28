@@ -139,3 +139,26 @@ module.exports = {
 
 	},
 };
+
+
+/*
+
+TODO handle error on "music play pewdiepie"
+Error: No video id found: https://www.youtube.com/user/PewDiePie
+    at Object.exports.getURLVideoID (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/util.js:261:11)
+    at Object.exports.getVideoID (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/util.js:285:20)
+    at Function.exports.<computed> [as getInfo] (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/info.js:320:19)
+    at ytdl (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/index.js:17:8)
+    at playNextSong (/home/gambuzx/Documents/repos/mini_projs/bababui/voice_commands/music.js:102:15)
+    at play (/home/gambuzx/Documents/repos/mini_projs/bababui/voice_commands/music.js:51:13)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:93:5)
+(node:284298) UnhandledPromiseRejectionWarning: DiscordAPIError: Cannot send an empty message
+    at RequestHandler.execute (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/discord.js/src/rest/RequestHandler.js:170:25)
+    at runMicrotasks (<anonymous>)
+    at processTicksAndRejections (internal/process/task_queues.js:93:5)
+(node:284298) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 3)
+
+
+
+*/

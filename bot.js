@@ -1,24 +1,32 @@
 /* eslint-disable no-case-declarations */
 const fs = require('fs');
+const path = require('path');
 const Discord = require('discord.js');
 const { prefix, token } = require('./config.json');
 const stt = require('./speech_to_text.js');
 
+const recordings_dir = "./recordings";
+const commands_dir = "./voice_commands";
+
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
 
-const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
+// collect all voice commands
+const commandFiles = fs.readdirSync(commands_dir).filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
-
-	// set a new item in the Collection
-	// with the key as the command name and the value as the exported module
+	const command = require(`${commands_dir}/${file}`);
 	client.commands.set(command.name, command);
 }
 
-// when client is ready
-client.on('ready', () => {
-	console.log(`Logged in as ${client.user.tag}!`);
+// delete leftover audio from previous runs
+fs.readdir(recordings_dir, (err, files) => {
+	if (err) throw err;
+
+	for (const file of files) {
+		fs.unlink(path.join(recordings_dir, file), err => {
+		if (err) throw err;
+		});
+	}
 });
 
 async function generateOutputFile(recordings_dir, filename) {
@@ -40,8 +48,7 @@ async function handleVoiceCommand(msg, voice_command, connection) {
 	const args = voice_command.split(/ +/);
 	const command_name = args.shift(); // take first arg and remove it	
 
-	// unknown command
-	if(!client.commands.has(command_name) && !client.commands.has(voice_command)) {
+	if(!client.commands.has(command_name) && !client.commands.has(voice_command)) { // unknown command
 		msg.channel.send(`Unknown command '${voice_command}'`);
 		return;
 	}
@@ -57,11 +64,19 @@ async function handleVoiceCommand(msg, voice_command, connection) {
 }
 
 connections = {}
-client.on('message', msg => {
-	if (msg.content.startsWith(prefix+'join')) {
-		// let [command, ...channelName] = msg.content.split(" ");
-		const voiceChannel = msg.member.voice.channel;
 
+// when client is ready
+client.on('ready', () => {
+	console.log(`Logged in as ${client.user.tag}!`);
+});
+
+// intercept chat messages
+client.on('message', msg => {
+
+	// join command
+	if (msg.content.startsWith(prefix+'join')) {
+
+		const voiceChannel = msg.member.voice.channel;
 		if (!voiceChannel) {
 			return msg.reply(`you must be in a voice channel`);
 		}
@@ -94,7 +109,6 @@ client.on('message', msg => {
 					const audioStream = receiver.createStream(user, {mode: 'pcm'});
 					
 					// create an output stream so we can dump our data in a file
-					const recordings_dir = "./recordings"
 					const filename = `${recordings_dir}/${voiceChannel.id}-${user.id}-${Date.now()}.pcm`;
 					const outputStream = await generateOutputFile(recordings_dir, filename);
 					
@@ -119,7 +133,6 @@ client.on('message', msg => {
 						fs.unlink(filename, () => {});
 						if (voice_command.length == 0) return;
 
-						//conn.play('./sounds/beep.mp3');
 						handleVoiceCommand(msg, voice_command, conn);
 					});
 				});
@@ -137,6 +150,7 @@ client.on('message', msg => {
 		.catch(console.log);
 	}
 
+	// leave command
 	if (msg.content.startsWith(prefix+'leave')) {
 		const user_connection = connections[msg.author.username];
 		if (!user_connection) return;
@@ -150,6 +164,7 @@ client.on('message', msg => {
 		}
 	}
 
+	// help command
 	if (msg.content.startsWith(prefix+'help')) {
 		let helpEmbed = new Discord.MessageEmbed()
             .setColor('#0099ff')
@@ -165,5 +180,7 @@ client.on('message', msg => {
 	}
 });
 
-
 client.login(token);
+
+// create better way of handling connections
+// wrap connections play method, so that it periodically plays a silenced beep to keep connection alive, only if no song is being played
