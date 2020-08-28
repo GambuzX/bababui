@@ -6,7 +6,6 @@ module.exports = {
     help_title: 'spam <message> / stop',
     help_description: "Spam a message indefinitely until you say 'spam stop'",
 	execute(message, args) {
-        console.log(args);
         if (args && args[0] == "stop") {
             message.channel.send("Okay.... I'll stop spamming")
             for (let i = 0; i < timeouts.length; i++)
