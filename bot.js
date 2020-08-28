@@ -3,6 +3,7 @@ const fs = require('fs');
 const Discord = require('discord.js');
 const { prefix, token } = require('./config.json');
 const stt = require('./speech_to_text.js');
+const ytdl = require("ytdl-core");
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -77,7 +78,7 @@ client.on('message', msg => {
 			const dispatcher = conn.play('./sounds/hello.mp3');
 			dispatcher.on('error', console.error);
 			
-			// keep connection alive
+			// keep connection alive TODO create some connection manager
 			setInterval(() => {
 				conn.play('./sounds/silence.mp3');
 			}, 10000);
