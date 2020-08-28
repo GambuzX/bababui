@@ -76,6 +76,11 @@ client.on('message', msg => {
 			// play hello clip
 			const dispatcher = conn.play('./sounds/hello.mp3');
 			dispatcher.on('error', console.error);
+			
+			// keep connection alive
+			setInterval(() => {
+				conn.play('./sounds/silence.mp3');
+			}, 10000);
 
 			dispatcher.on('finish', () => {
 				// create our voice receiver
