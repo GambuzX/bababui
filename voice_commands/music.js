@@ -128,16 +128,20 @@ module.exports = {
         const serverQueue = queue.get(message.guild.id);
         const command = args[0];
 
-        if (command == "play") 
+        if (command == "play") {
             play(message, serverQueue, connection, args.slice(1).join(' '));
-        else if (command == "skip") 
+        }
+        else if (command == "skip") {
             skip(message, serverQueue);
-        else if (command == "stop") 
+        }
+        else if (command == "stop") {
             stop(message, serverQueue);
+        }
         else 
             message.channel.send(`I don't recognize the command "music ${args.join(' ')}"`);
 
-	},
+    },
+    playing: (msg) => !!queue.get(msg.guild.id)
 };
 
 

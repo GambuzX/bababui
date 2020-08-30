@@ -1,13 +1,8 @@
 connections = {}
 connection_timeouts = {}
 
-// TODO
-// make compatible with music commands stop and skip
-// what happens if I say hello during a song??
-
 function keep_connection_alive(username, connection) {
     connection_timeouts[username] = setInterval(() => {
-        console.log("silence");
         connection.originalPlay('./sounds/silence.mp3');
     }, 10000);
 }
@@ -50,5 +45,6 @@ function remove_connection(username, voiceChannel) {
 
 module.exports = {
     add_connection: add_connection,
-    remove_connection: remove_connection
+    remove_connection: remove_connection,
+    keep_connection_alive: keep_connection_alive
 };
