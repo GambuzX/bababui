@@ -4,12 +4,12 @@ module.exports = {
 	name: 'cringe',
     help_title: 'cringe',
     help_description: "Display a random combination of cringe emojis",
-	execute(message, args) {
+	execute(args, author, textChannel, voiceChannel) {
 
 		cringe_compilation = "";;
 		for (let i = 0; i < 50; i++) {
 			cringe_compilation += cringy_emojis[Math.floor(Math.random() * cringy_emojis.length)];
 		}
-		message.channel.send(cringe_compilation);
+		textChannel.send(cringe_compilation);
 	},
 };

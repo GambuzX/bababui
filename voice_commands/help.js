@@ -6,7 +6,7 @@ module.exports = {
     description: 'Show help for the bot commands',
     help_title: 'help',
     help_description: "Display info about each of the bot commands",
-	execute(message, args) {
+	execute(args, author, textChannel, voiceChannel, connection) {
         commands_help = {}
         const commandFiles = fs.readdirSync('./voice_commands/').filter(file => file.endsWith('.js'));
         for (const file of commandFiles) {
@@ -23,6 +23,6 @@ module.exports = {
             helpEmbed = helpEmbed.addFields({name: help_title, value: commands_help[help_title]});
         }
     
-        message.channel.send(helpEmbed);
+        textChannel.send(helpEmbed);
 	},
 };

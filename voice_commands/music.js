@@ -5,24 +5,23 @@ const Discord = require('discord.js');
 
 const queue = new Map();
 
-async function play(message, serverQueue, connection, songName) {
+async function play(songName, serverQueue, connection, author, textChannel, voiceChannel, guildID) {
     if (!songName) {
-        return message.channel.send("Could not understand the name of the song");
+        return textChannel.send("Could not understand the name of the song");
     }
   
-    const voiceChannel = message.member.voice.channel;
     if (!voiceChannel)
-      return message.channel.send("You need to be in a voice channel to play music!");
+      return textChannel.send("You need to be in a voice channel to play music!");
 
-    const permissions = voiceChannel.permissionsFor(message.client.user);
+    const permissions = voiceChannel.permissionsFor(author);
     if (!permissions.has("CONNECT") || !permissions.has("SPEAK")) {
-      return message.channel.send("I need the permissions to join and speak in your voice channel!");
+      return textChannel.send("I need the permissions to join and speak in your voice channel!");
     }
 
     // find info about given song
     const res = await ytsr(songName, { limit: 10 });
     if(res.items.length == 0) {
-        return message.channel.send(`I couldn't find a song for ${songName}`);        
+        return textChannel.send(`I couldn't find a song for ${songName}`);        
     }
 
     // find a video in results (may return channels, playlists, ...)
@@ -45,7 +44,7 @@ async function play(message, serverQueue, connection, songName) {
   
     if (!serverQueue) { // queue is empty
         const queueConstruct = {
-            textChannel: message.channel,
+            textChannel: textChannel,
             voiceChannel: voiceChannel,
             connection: null,
             songs: [],
@@ -53,57 +52,57 @@ async function play(message, serverQueue, connection, songName) {
             playing: true
         };
 
-        queue.set(message.guild.id, queueConstruct);
+        queue.set(guildID, queueConstruct);
         queueConstruct.songs.push(song);
 
         try {
             queueConstruct.connection = connection;
-            playNextSong(message.guild, queueConstruct.songs[0]);
+            playNextSong(guildID, queueConstruct.songs[0]);
         } catch (err) {
             console.log(err);
-            queue.delete(message.guild.id);
-            return message.channel.send(err);
+            queue.delete(guildID);
+            return textChannel.send(err);
         }
     } else { // queue is not empty
         serverQueue.songs.push(song);
-        return message.channel.send(`${song.title} has been added to the queue!`);
+        return textChannel.send(`${song.title} has been added to the queue!`);
     }
   }
   
-function skip(message, serverQueue) {
-    if (!message.member.voice.channel)
-        return message.channel.send("You have to be in a voice channel to stop the music!");
+function skip(textChannel, voiceChannel, serverQueue) {
+    if (!voiceChannel)
+        return textChannel.send("You have to be in a voice channel to stop the music!");
 
     // if empty queue
     if (!serverQueue)
-        return message.channel.send("There is no song that I can skip");
+        return textChannel.send("There is no song that I can skip");
         
-    message.channel.send("Skipping current song");
+    textChannel.send("Skipping current song");
     const dispatcher = serverQueue.connection.dispatcher;
     if (dispatcher) dispatcher.end();
 }
 
-function stop(message, serverQueue) {
-    if (!message.member.voice.channel)
-        return message.channel.send("You have to be in a voice channel to stop the music!");
+function stop(textChannel, voiceChannel, serverQueue) {
+    if (!voiceChannel)
+        return textChannel.send("You have to be in a voice channel to stop the music!");
     
     // if empty queue
     if(!serverQueue)
-        return message.channel.send("There is no song to stop");
+        return textChannel.send("There is no song to stop");
 
     serverQueue.songs = [];
 
-    message.channel.send("Stopping song and clearing queue");
+    textChannel.send("Stopping song and clearing queue");
     const dispatcher = serverQueue.connection.dispatcher;
     if (dispatcher) dispatcher.end();
 }
 
-function playNextSong(guild, song) {
-    const serverQueue = queue.get(guild.id);
+function playNextSong(guildID, song) {
+    const serverQueue = queue.get(guildID);
     
     // reached last song
     if (!song) { 
-        queue.delete(guild.id);
+        queue.delete(guildID);
         return;
     }
 
@@ -112,7 +111,7 @@ function playNextSong(guild, song) {
         .play(ytdl(song.url))
         .on("finish", () => {
             serverQueue.songs.shift(); 
-            playNextSong(guild, serverQueue.songs[0]);
+            playNextSong(guildID, serverQueue.songs[0]);
         })
         .on("error", error => console.error(error));
 
@@ -132,26 +131,27 @@ module.exports = {
 	description: 'Audio related commands!',
     help_title: 'music',
     help_description: "Music related commands: 'music play <song>', 'music stop', 'music skip'",
-	execute(message, args, connection) {
+	execute(args, author, textChannel, voiceChannel, connection, guildID) {
         if(!args || args.length == 0) {
-            return message.channel.send("Music command must be followed by 'play', 'skip' or 'stop'");
+            return textChannel.send("Music command must be followed by 'play', 'skip' or 'stop'");
         }
 
-        const serverQueue = queue.get(message.guild.id);
+        const serverQueue = queue.get(guildID);
         const command = args[0];
 
         if (command == "play") {
-            play(message, serverQueue, connection, args.slice(1).join(' '));
+            const songName = args.slice(1).join(' ');
+            play(songName, serverQueue, connection, author, textChannel, voiceChannel, guildID);
         }
         else if (command == "skip") {
-            skip(message, serverQueue);
+            skip(textChannel, voiceChannel, serverQueue);
         }
         else if (command == "stop") {
-            stop(message, serverQueue);
+            stop(textChannel, voiceChannel, serverQueue);
         }
         else 
-            message.channel.send(`I don't recognize the command "music ${args.join(' ')}"`);
+            textChannel.send(`I don't recognize the command "music ${args.join(' ')}"`);
 
     },
-    playing: (msg) => !!queue.get(msg.guild.id)
+    playing: (guildID) => !!queue.get(guildID)
 };

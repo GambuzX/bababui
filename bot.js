@@ -8,6 +8,7 @@ const connection_manager = require('./connection_manager.js');
 
 const recordings_dir = "./recordings";
 const commands_dir = "./voice_commands";
+const voice_prefix = "monkey";
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -44,34 +45,35 @@ async function generateOutputFile(recordings_dir, filename) {
 	return fs.createWriteStream(filename);
 }
 
-async function handleVoiceCommand(msg, voice_command, connection) {
+// handleVoiceCommand(voice_command, conn, user, textChannel, voiceChannel, guildID);
+async function handleVoiceCommand(voice_command, connection, author, textChannel, voiceChannel, guildID) {
 	voice_command = voice_command.toLowerCase();
-	voice_command = voice_command.substr(voice_command.indexOf("monkey"));
+	voice_command = voice_command.substr(voice_command.indexOf(voice_prefix));
 	const args = voice_command.split(/ +/);
 	
 	// check voice prefix, should be 'monkey <command> <args>*'
-	const voice_prefix = args.shift();
-	if (voice_prefix != "monkey") return;
+	const cmd_voice_prefix = args.shift();
+	if (cmd_voice_prefix != voice_prefix) return;
 	voice_command = args.join(' ');
 
 	// check given command
 	if (args.length == 0) {
-		return msg.channel.send("You must say 'monkey <command> <args>*'");
+		return textChannel.send("You must say '" + voice_prefix + " <command> <args>*'");
 	}
 
 	const command_name = args.shift();
 	if(!client.commands.has(command_name) && !client.commands.has(voice_command)) { // unknown command
-		return msg.channel.send(`Unknown command '${voice_command}'`);
+		return textChannel.send(`Unknown command '${voice_command}'`);
 	}
 
 	// execute command
 	const command = client.commands.get(command_name) || client.commands.get(voice_command);
 	try {
-		command.execute(msg, args, connection);
+		command.execute(args, author, textChannel, voiceChannel, connection, guildID);
 	}
 	catch (err) {
 		console.log(err);
-		msg.reply('there was an error while executing that command!');
+		textChannel.send('There was an error while executing that command, please try again.');
 	}
 }
 
@@ -90,6 +92,8 @@ client.on('message', msg => {
 		if (!voiceChannel) {
 			return msg.reply(`you must be in a voice channel`);
 		}
+		const textChannel = msg.channel;
+		const guildID = msg.guild.id;
 
 		voiceChannel.join()
 		.then(conn => {
@@ -137,8 +141,8 @@ client.on('message', msg => {
 						// delete sound file
 						fs.unlink(filename, () => {});
 						if (voice_command.length == 0) return;
-
-						handleVoiceCommand(msg, voice_command, conn);
+						
+						handleVoiceCommand(voice_command, conn, user, textChannel, voiceChannel, guildID);
 					});
 				});
 
@@ -180,5 +184,5 @@ client.login(token);
 
 
 // TODO
-// bot is dependent on the user who used !join for the text and voice channels. if user leaves bot does not work. only need to record voice channel maybe?
 // belle delphine command
+// disable bots from talking to this bot
