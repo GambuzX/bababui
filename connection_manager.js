@@ -7,6 +7,35 @@ function keep_connection_alive(username, connection) {
     }, 10000);
 }
 
+
+/*
+TODO Exceptions to fix
+RangeError: Maximum call stack size exceeded
+    at clearTimeout (timers.js:155:22)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:19:9)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+RangeError: Maximum call stack size exceeded
+    at clearTimeout (timers.js:155:22)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:19:9)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+
+
+*/
+
 // TODO check how this behaves with multiple users
 function add_connection(conn, username) {
     conn.originalPlay = conn.play;

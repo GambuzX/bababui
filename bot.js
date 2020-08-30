@@ -55,7 +55,7 @@ async function handleVoiceCommand(msg, voice_command, connection) {
 
 	// check given command
 	if (args.length == 0) {
-		return msg.channel.send("You must say 'monkey <command> <args>*'!");
+		return msg.channel.send("You must say 'monkey <command> <args>*'");
 	}
 
 	const command_name = args.shift();
@@ -177,10 +177,3 @@ client.on('message', msg => {
 });
 
 client.login(token);
-
-
-/*
-
-create keyword for the bot to recognize 
-
-*/

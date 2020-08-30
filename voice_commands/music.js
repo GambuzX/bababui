@@ -6,7 +6,6 @@ const Discord = require('discord.js');
 const queue = new Map();
 
 async function play(message, serverQueue, connection, songName) {
-    // handle null song name TODO
     if (!songName) {
         return message.channel.send("Could not understand the name of the song");
     }
@@ -21,16 +20,27 @@ async function play(message, serverQueue, connection, songName) {
     }
 
     // find info about given song
-    const res = await ytsr(songName, { limit: 1 });
+    const res = await ytsr(songName, { limit: 10 });
     if(res.items.length == 0) {
         return message.channel.send(`I couldn't find a song for ${songName}`);        
     }
 
+    // find a video in results (may return channels, playlists, ...)
+    let chosen_item = null;
+    res.items.every((ele, index) => {
+        if (ele.type == "video" || ele.type == "movie") {
+            chosen_item = ele;
+            return false;
+        }
+
+        return true;
+    });
+
     // create song object
     const song = {
-        title: res.items[0].title,
-        url: res.items[0].link,
-        thumbnail: res.items[0].thumbnail
+        title: chosen_item.title,
+        url: chosen_item.link,
+        thumbnail: chosen_item.thumbnail
     };
   
     if (!serverQueue) { // queue is empty
@@ -123,7 +133,9 @@ module.exports = {
     help_title: 'music',
     help_description: "Music related commands: 'music play <song>', 'music stop', 'music skip'",
 	execute(message, args, connection) {
-        if(!args || args.length == 0) return;
+        if(!args || args.length == 0) {
+            return message.channel.send("Music command must be followed by 'play', 'skip' or 'stop'");
+        }
 
         const serverQueue = queue.get(message.guild.id);
         const command = args[0];
@@ -143,72 +155,3 @@ module.exports = {
     },
     playing: (msg) => !!queue.get(msg.guild.id)
 };
-
-
-/*
-Exceptions to fix
-
-TODO handle error on "music play pewdiepie"
-Error: No video id found: https://www.youtube.com/user/PewDiePie
-    at Object.exports.getURLVideoID (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/util.js:261:11)
-    at Object.exports.getVideoID (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/util.js:285:20)
-    at Function.exports.<computed> [as getInfo] (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/info.js:320:19)
-    at ytdl (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/index.js:17:8)
-    at playNextSong (/home/gambuzx/Documents/repos/mini_projs/bababui/voice_commands/music.js:102:15)
-    at play (/home/gambuzx/Documents/repos/mini_projs/bababui/voice_commands/music.js:51:13)
-    at runMicrotasks (<anonymous>)
-    at processTicksAndRejections (internal/process/task_queues.js:93:5)
-(node:284298) UnhandledPromiseRejectionWarning: DiscordAPIError: Cannot send an empty message
-    at RequestHandler.execute (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/discord.js/src/rest/RequestHandler.js:170:25)
-    at runMicrotasks (<anonymous>)
-    at processTicksAndRejections (internal/process/task_queues.js:93:5)
-(node:284298) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 3)
-
-
-
-
-
-TypeError [ERR_INVALID_ARG_TYPE]: The "url" argument must be of type string. Received type undefined
-    at validateString (internal/validators.js:112:11)
-    at Url.parse (url.js:155:3)
-    at Object.urlParse [as parse] (url.js:150:13)
-    at Object.exports.getURLVideoID (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/util.js:252:22)
-    at Object.exports.getVideoID (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/util.js:285:20)
-    at Function.exports.<computed> [as getInfo] (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/info.js:320:19)
-    at ytdl (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/index.js:17:8)
-    at playNextSong (/home/gambuzx/Documents/repos/mini_projs/bababui/voice_commands/music.js:102:15)
-    at play (/home/gambuzx/Documents/repos/mini_projs/bababui/voice_commands/music.js:51:13)
-    at processTicksAndRejections (internal/process/task_queues.js:93:5) {
-  code: 'ERR_INVALID_ARG_TYPE'
-}
-(node:11059) UnhandledPromiseRejectionWarning: DiscordAPIError: Cannot send an empty message
-    at RequestHandler.execute (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/discord.js/src/rest/RequestHandler.js:170:25)
-    at processTicksAndRejections (internal/process/task_queues.js:93:5)
-(node:11059) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 1)
-(node:11059) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
-
-RangeError: Maximum call stack size exceeded
-    at clearTimeout (timers.js:155:22)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:19:9)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-RangeError: Maximum call stack size exceeded
-    at clearTimeout (timers.js:155:22)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:19:9)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
-
-
-*/
