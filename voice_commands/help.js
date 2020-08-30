@@ -17,7 +17,7 @@ module.exports = {
         let helpEmbed = new Discord.MessageEmbed()
             .setColor('#0099ff')
             .setTitle('bababui Help :monkey:')
-            .setDescription('List of voice commands I understand');
+            .setDescription('List of voice commands I understand. Talk to me by saying "monkey <cmd> <args>*"');
         
         for(const help_title in commands_help) {
             helpEmbed = helpEmbed.addFields({name: help_title, value: commands_help[help_title]});

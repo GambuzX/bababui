@@ -84,6 +84,7 @@ client.on('ready', () => {
 
 // intercept chat messages
 client.on('message', msg => {
+	if(msg.author.bot) return;
 
 	// join command
 	if (msg.content.startsWith(prefix+'join')) {
@@ -98,10 +99,10 @@ client.on('message', msg => {
 		voiceChannel.join()
 		.then(conn => {
 			// register connection and wrap its play method
-			connection_manager.wrap_connection(conn, msg.author.username);
+			connection_manager.wrap_connection(conn);
 
 			msg.reply(`give me orders!`);
-			msg.channel.send("Say 'help' for more details");
+			textChannel.send("Say 'help' for more details");
 			
 			// play hello clip
 			const dispatcher = conn.play('./sounds/hello.mp3');
@@ -112,7 +113,7 @@ client.on('message', msg => {
 				const receiver = conn.receiver;
 	
 				conn.on('speaking', async (user, speaking) => {
-					if(!speaking) return;
+					if(!speaking || user.bot) return;
 
 					// this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
 					const audioStream = receiver.createStream(user, {mode: 'pcm'});
@@ -181,8 +182,3 @@ client.on('message', msg => {
 });
 
 client.login(token);
-
-
-// TODO
-// belle delphine command
-// disable bots from talking to this bot
