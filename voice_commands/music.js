@@ -187,4 +187,28 @@ TypeError [ERR_INVALID_ARG_TYPE]: The "url" argument must be of type string. Rec
 (node:11059) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 1)
 (node:11059) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
 
+RangeError: Maximum call stack size exceeded
+    at clearTimeout (timers.js:155:22)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:19:9)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+RangeError: Maximum call stack size exceeded
+    at clearTimeout (timers.js:155:22)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:19:9)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+    at VoiceConnection.conn.play [as originalPlay] (/home/gambuzx/Documents/repos/mini_projs/bababui/connection_manager.js:22:33)
+
+
 */

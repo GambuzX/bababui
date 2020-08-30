@@ -46,14 +46,24 @@ async function generateOutputFile(recordings_dir, filename) {
 
 async function handleVoiceCommand(msg, voice_command, connection) {
 	voice_command = voice_command.toLowerCase();
+	voice_command = voice_command.substr(voice_command.indexOf("monkey"));
 	const args = voice_command.split(/ +/);
-	const command_name = args.shift(); // take first arg and remove it	
 
-	if(!client.commands.has(command_name) && !client.commands.has(voice_command)) { // unknown command
-		msg.channel.send(`Unknown command '${voice_command}'`);
-		return;
+	// check voice prefix, should be 'monkey <command> <args>*'
+	const voice_prefix = args.shift();
+	if (voice_prefix != "monkey") return;
+
+	// check given command
+	if (args.length == 0) {
+		return msg.channel.send("You must say 'monkey <command> <args>*'!");
 	}
 
+	const command_name = args.shift();
+	if(!client.commands.has(command_name) && !client.commands.has(voice_command)) { // unknown command
+		return msg.channel.send(`Unknown command '${voice_command}'`);
+	}
+
+	// execute command
 	const command = client.commands.get(command_name) || client.commands.get(voice_command);
 	try {
 		command.execute(msg, args, connection);
@@ -167,3 +177,10 @@ client.on('message', msg => {
 });
 
 client.login(token);
+
+
+/*
+
+create keyword for the bot to recognize 
+
+*/

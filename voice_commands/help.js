@@ -8,7 +8,7 @@ module.exports = {
     help_description: "Display info about each of the bot commands",
 	execute(message, args) {
         commands_help = {}
-        const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
+        const commandFiles = fs.readdirSync('./voice_commands/').filter(file => file.endsWith('.js'));
         for (const file of commandFiles) {
             const command = require(`./${file}`);
             commands_help[command.help_title] = command.help_description;
