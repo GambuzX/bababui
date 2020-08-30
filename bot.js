@@ -4,6 +4,7 @@ const path = require('path');
 const Discord = require('discord.js');
 const { prefix, token } = require('./config.json');
 const stt = require('./speech_to_text.js');
+const connection_manager = require('./connection_manager.js');
 
 const recordings_dir = "./recordings";
 const commands_dir = "./voice_commands";
@@ -63,8 +64,6 @@ async function handleVoiceCommand(msg, voice_command, connection) {
 	}
 }
 
-connections = {}
-
 // when client is ready
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
@@ -83,7 +82,8 @@ client.on('message', msg => {
 
 		voiceChannel.join()
 		.then(conn => {
-			connections[msg.author.username] = conn;
+			// register connection and wrap its play method
+			connection_manager.add_connection(conn, msg.author.username);
 
 			msg.reply(`give me orders!`);
 			msg.channel.send("Say 'help' for more details");
@@ -91,11 +91,6 @@ client.on('message', msg => {
 			// play hello clip
 			const dispatcher = conn.play('./sounds/hello.mp3');
 			dispatcher.on('error', console.error);
-			
-			// keep connection alive TODO create some connection manager
-			/*setInterval(() => {
-				conn.play('./sounds/silence.mp3');
-			}, 10000);*/
 
 			dispatcher.on('finish', () => {
 				// create our voice receiver
@@ -152,16 +147,7 @@ client.on('message', msg => {
 
 	// leave command
 	if (msg.content.startsWith(prefix+'leave')) {
-		const user_connection = connections[msg.author.username];
-		if (!user_connection) return;
-
-		user_connection.disconnect();
-		delete connections[msg.author.username];
-
-		if (Object.keys(connections).length == 0) {
-			const voiceChannel = msg.member.voice.channel;
-			voiceChannel.leave();
-		}
+		connection_manager.remove_connection(msg.author.username, msg.member.voice.channel);
 	}
 
 	// help command
@@ -181,6 +167,3 @@ client.on('message', msg => {
 });
 
 client.login(token);
-
-// create better way of handling connections
-// wrap connections play method, so that it periodically plays a silenced beep to keep connection alive, only if no song is being played

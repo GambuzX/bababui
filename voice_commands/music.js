@@ -142,6 +142,7 @@ module.exports = {
 
 
 /*
+Exceptions to fix
 
 TODO handle error on "music play pewdiepie"
 Error: No video id found: https://www.youtube.com/user/PewDiePie
@@ -160,5 +161,26 @@ Error: No video id found: https://www.youtube.com/user/PewDiePie
 (node:284298) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 3)
 
 
+
+
+
+TypeError [ERR_INVALID_ARG_TYPE]: The "url" argument must be of type string. Received type undefined
+    at validateString (internal/validators.js:112:11)
+    at Url.parse (url.js:155:3)
+    at Object.urlParse [as parse] (url.js:150:13)
+    at Object.exports.getURLVideoID (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/util.js:252:22)
+    at Object.exports.getVideoID (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/util.js:285:20)
+    at Function.exports.<computed> [as getInfo] (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/info.js:320:19)
+    at ytdl (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/ytdl-core/lib/index.js:17:8)
+    at playNextSong (/home/gambuzx/Documents/repos/mini_projs/bababui/voice_commands/music.js:102:15)
+    at play (/home/gambuzx/Documents/repos/mini_projs/bababui/voice_commands/music.js:51:13)
+    at processTicksAndRejections (internal/process/task_queues.js:93:5) {
+  code: 'ERR_INVALID_ARG_TYPE'
+}
+(node:11059) UnhandledPromiseRejectionWarning: DiscordAPIError: Cannot send an empty message
+    at RequestHandler.execute (/home/gambuzx/Documents/repos/mini_projs/bababui/node_modules/discord.js/src/rest/RequestHandler.js:170:25)
+    at processTicksAndRejections (internal/process/task_queues.js:93:5)
+(node:11059) UnhandledPromiseRejectionWarning: Unhandled promise rejection. This error originated either by throwing inside of an async function without a catch block, or by rejecting a promise which was not handled with .catch(). (rejection id: 1)
+(node:11059) [DEP0018] DeprecationWarning: Unhandled promise rejections are deprecated. In the future, promise rejections that are not handled will terminate the Node.js process with a non-zero exit code.
 
 */

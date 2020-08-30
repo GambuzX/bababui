@@ -12,5 +12,4 @@ Discord bot that responds to voice commands
 - https://gabrieltanner.org/blog/dicord-music-bot
 
 ## Future work
-- Find out why the bot can't interact with other bots, such as groovy
 - More cool commands
