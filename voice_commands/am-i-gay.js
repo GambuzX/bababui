@@ -19,6 +19,6 @@ module.exports = {
             .setDescription(`${username} is ${total}% gay`)
             .setThumbnail(message.author.avatarURL());
 
-            message.channel.send(gayEmbed);
+        message.channel.send(gayEmbed);
 	},
 };
