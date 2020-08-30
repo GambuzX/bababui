@@ -22,3 +22,5 @@ module.exports = {
         message.channel.send(gayEmbed);
 	},
 };
+
+// TODO fix problem with username. it currently gets the msg author, instead of voice command author

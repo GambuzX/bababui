@@ -48,10 +48,11 @@ async function handleVoiceCommand(msg, voice_command, connection) {
 	voice_command = voice_command.toLowerCase();
 	voice_command = voice_command.substr(voice_command.indexOf("monkey"));
 	const args = voice_command.split(/ +/);
-
+	
 	// check voice prefix, should be 'monkey <command> <args>*'
 	const voice_prefix = args.shift();
 	if (voice_prefix != "monkey") return;
+	voice_command = args.join(' ');
 
 	// check given command
 	if (args.length == 0) {
@@ -93,7 +94,7 @@ client.on('message', msg => {
 		voiceChannel.join()
 		.then(conn => {
 			// register connection and wrap its play method
-			connection_manager.add_connection(conn, msg.author.username);
+			connection_manager.wrap_connection(conn, msg.author.username);
 
 			msg.reply(`give me orders!`);
 			msg.channel.send("Say 'help' for more details");
@@ -107,7 +108,6 @@ client.on('message', msg => {
 				const receiver = conn.receiver;
 	
 				conn.on('speaking', async (user, speaking) => {
-
 					if(!speaking) return;
 
 					// this creates a 16-bit signed PCM, stereo 48KHz PCM stream.
@@ -157,7 +157,7 @@ client.on('message', msg => {
 
 	// leave command
 	if (msg.content.startsWith(prefix+'leave')) {
-		connection_manager.remove_connection(msg.author.username, msg.member.voice.channel);
+		msg.member.voice.channel.leave();
 	}
 
 	// help command
@@ -177,3 +177,8 @@ client.on('message', msg => {
 });
 
 client.login(token);
+
+
+// TODO
+// bot is dependent on the user who used !join for the text and voice channels. if user leaves bot does not work. only need to record voice channel maybe?
+// belle delphine command
