@@ -25,7 +25,7 @@ Have fun!
 
 ### Voice commands
 - `banana`: Gifts your server with a banana;
-- `cringe`: Spams 50 cringy emojis and starts playing "I'm back" from Belle Delphine;
+- `cringe`: Spams 50 cringy emojis and starts playing "I'm back" by Belle Delphine;
 - `hello`: Say hello;
 - `help`: Display voice commands' help;
 - `leave`: Leave the channel;
