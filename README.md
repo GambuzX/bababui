@@ -2,7 +2,7 @@
 Meet bababui, a discord bot that answers your voice commands. 
 ![bababui selfie](https://github.com/adam-p/markdown-here/raw/master/src/common/images/icon48.png "Bababui selfie")
 
-Why bababui? The name looks cool. And since it makes me think of a monkey it was baptized as such.
+Why bababui? The name sounds cool. And since it makes me think of a monkey it was baptized as such.
 
 ## Usage
 Write `!join` on a text channel to make the bot **appear** on your voice channel (you must be in one). After an initial 'hello' message it will be available to answer your voice commands!
