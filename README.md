@@ -6,7 +6,11 @@ Why bababui? The name looks cool. And since it makes me think of a monkey it was
 ![bababui selfie](https://github.com/GambuzX/bababui/raw/master/docs/selfie.png "Bababui selfie")
 
 
-## Usage :monkey:
+## Demo :monkey:
+[![Demo thumbnail](https://github.com/GambuzX/bababui/raw/master/docs/demo_thumbnail.png)](https://drive.google.com/file/d/1wN70L_AU9JqoLGOsK-PYSKTowfCYh-eu/view?usp=sharing "Bababui demo")
+
+
+## Usage :zap:
 Start the bot by using `node bot.js` on a terminal, from the project's root folder. It will login to Discord and be ready for interaction. It must be running somewhere for it to work, such as on your local machine.
 
 Write `!join` on a text channel to make the bot **appear** on your voice channel (you must be in one). After an initial 'hello' message it will be available to answer your voice commands!
