@@ -1,4 +1,4 @@
-# bababui :robot: :monkey:
+# bababui :monkey_face: :robot: 
 Meet bababui, a discord bot that answers your voice commands.
 
 Why bababui? The name looks cool. And since it makes me think of a monkey it was baptized as such.
@@ -6,8 +6,8 @@ Why bababui? The name looks cool. And since it makes me think of a monkey it was
 ![bababui selfie](https://github.com/GambuzX/bababui/raw/master/docs/selfie.png "Bababui selfie")
 
 
-## Usage
-Start the bot by using `node bot.js` on a terminal, from the project's root folder. It will login to Discord and be ready to interact it.
+## Usage :monkey:
+Start the bot by using `node bot.js` on a terminal, from the project's root folder. It will login to Discord and be ready for interaction. It must be running somewhere for it to work, such as on your local machine.
 
 Write `!join` on a text channel to make the bot **appear** on your voice channel (you must be in one). After an initial 'hello' message it will be available to answer your voice commands!
 
@@ -17,22 +17,22 @@ For the bot to **leave** the channel you can either write `!leave` or say `monke
 
 Have fun!
 
-## Implementation
+## Implementation :rocket:
 
 ### Voice commands
 - `am i gay`: Measures how gay your username is;
 - `banana`: Gifts your server with a banana;
-- `cringe`: Spams 50 fifty cringy emojis and starts to play "I'm back" from Belle Delphine;
+- `cringe`: Spams 50 cringy emojis and starts playing "I'm back" from Belle Delphine;
 - `hello`: Say hello;
 - `help`: Display voice commands' help;
 - `leave`: Leave the channel;
 - `music`: Music related commands. Can play, skip and stop musics from youtube;
 - `ping`: Pong;
 - `spam`: Spams a message indefinitely. Don't worry, there is `spam stop`;
-- `tts`: repeats a message via Discord's Text-to-Speech;
+- `say`: repeats a message via Discord's Text-to-Speech;
 
 ### How a command is processed
-1. When the bot is added to a voice channel it begins listening to each user's voice separately (no funny stuff I promise :shypit:).
+1. When the bot is added to a voice channel it begins listening to each user's voice separately (no funny stuff I promise :shipit:).
 2. When a user talks, bababui records the voice and saves it to a file in the `recordings/` folder. 
 3. This recording is then sent through GCloud's Speech-To-Text API in order to convert the voice to text and obtain the voice command. 
 4. Bababui executes the command if it's valid.
@@ -46,7 +46,7 @@ Have fun!
 - You can either create commands with 1 keyword + arguments, or a command with many keywords + 0 arguments.
 
 
-## Prerequisites
+## Prerequisites :ballot_box_with_check:
 - [Node.js](https://nodejs.org/en/), javascript runtime library
 - [Npm](https://www.npmjs.com/), node package manager
 - You must **create your own bot** on the [Discord Developer Portal](https://discord.com/developers/applications) and add it to the servers where you want to use it. 
@@ -57,7 +57,7 @@ Have fun!
     - Create a service account;
     - Download a **private key** as a json file, which will be required during the Installation process below;
 
-## Installation
+## Installation :information_source:
 * Clone this repository.
 * Use `npm install` to install dependencies.
 * Create a 'config.json' file with the following variables:
@@ -75,7 +75,7 @@ Have fun!
     * More info on [this quickstart guide](https://cloud.google.com/speech-to-text/docs/quickstart-client-libraries)
 
 
-## Docs
+## Docs :bookmark_tabs:
 Links I found useful while developing bababui
 - [Discord.js guide](https://discordjs.guide/)
 - [Discord.js documentation](https://discord.js.org/#/docs/main/stable/general/welcome)
@@ -84,8 +84,8 @@ Links I found useful while developing bababui
 - [Gabriel Tanner's guide for creating a music bot](https://gabrieltanner.org/blog/dicord-music-bot)
 
 
-## License
-Feel free to use this bot and/or code as you wish, will be happy if its useful to someone. 
+## License :eyes:
+Feel free to use this bot and/or code as you wish, will be happy if it's useful to someone. 
 
 Am open to suggestions and available to answer any question you may have.
 
