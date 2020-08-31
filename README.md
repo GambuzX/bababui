@@ -20,7 +20,6 @@ Have fun!
 ## Implementation :rocket:
 
 ### Voice commands
-- `am i gay`: Measures how gay your username is;
 - `banana`: Gifts your server with a banana;
 - `cringe`: Spams 50 cringy emojis and starts playing "I'm back" from Belle Delphine;
 - `hello`: Say hello;
@@ -28,6 +27,7 @@ Have fun!
 - `leave`: Leave the channel;
 - `music`: Music related commands. Can play, skip and stop musics from youtube;
 - `ping`: Pong;
+- `rate my username`: Rates a username from 0 to 100%;
 - `spam`: Spams a message indefinitely. Don't worry, there is `spam stop`;
 - `say`: repeats a message via Discord's Text-to-Speech;
 

@@ -1,10 +1,10 @@
 const Discord = require('discord.js');
 
 module.exports = {
-	name: 'am i gay',
-    description: 'Check username gayness',
-    help_title: 'am i gay',
-    help_description: 'Measure gayness level of your username',
+	name: 'rate my username',
+    description: 'Rate a user\'s username',
+    help_title: 'rate my username',
+    help_description: 'Rates your username from 0% to 100%',
 	execute(args, author, textChannel, voiceChannel) {
 		const username = author.username;
         let total = 0;
@@ -13,12 +13,12 @@ module.exports = {
 		}
         total = (total % 100) + 1;
 
-        const gayEmbed = new Discord.MessageEmbed()
+        const rateEmbed = new Discord.MessageEmbed()
             .setColor('#8317bd')
-            .setTitle('Username Gayness Results')
-            .setDescription(`${username} is ${total}% gay`)
+            .setTitle('Username Rating Results')
+            .setDescription(`${username} is ${total}% cool`)
             .setThumbnail(author.avatarURL());
 
-        textChannel.send(gayEmbed);
+        textChannel.send(rateEmbed);
 	},
 };
