@@ -2,13 +2,12 @@
 const fs = require('fs');
 const path = require('path');
 const Discord = require('discord.js');
-const { prefix, token } = require('./config.json');
+const { voice_prefix, text_prefix, token } = require('./config.json');
 const stt = require('./speech_to_text.js');
 const connection_manager = require('./connection_manager.js');
 
 const recordings_dir = "./recordings";
 const commands_dir = "./voice_commands";
-const voice_prefix = "monkey";
 
 function checkRecordingsDir() {
 	// create folder if not exists
@@ -84,7 +83,7 @@ client.on('message', msg => {
 	if(msg.author.bot) return;
 
 	// join command
-	if (msg.content.startsWith(prefix+'join')) {
+	if (msg.content.startsWith(text_prefix+'join')) {
 
 		const voiceChannel = msg.member.voice.channel;
 		if (!voiceChannel) {
@@ -158,12 +157,12 @@ client.on('message', msg => {
 	}
 
 	// leave command
-	if (msg.content.startsWith(prefix+'leave')) {
+	if (msg.content.startsWith(text_prefix+'leave')) {
 		msg.member.voice.channel.leave();
 	}
 
 	// help command
-	if (msg.content.startsWith(prefix+'help')) {
+	if (msg.content.startsWith(text_prefix+'help')) {
 		let helpEmbed = new Discord.MessageEmbed()
             .setColor('#0099ff')
             .setTitle('bababui Help :monkey:')
