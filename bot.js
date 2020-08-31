@@ -2,50 +2,32 @@
 const fs = require('fs');
 const path = require('path');
 const Discord = require('discord.js');
-const { prefix, token } = require('./config.json');
+const { voice_prefix, text_prefix, token } = require('./config.json');
 const stt = require('./speech_to_text.js');
 const connection_manager = require('./connection_manager.js');
 
 const recordings_dir = "./recordings";
 const commands_dir = "./voice_commands";
-const voice_prefix = "monkey";
 
-const client = new Discord.Client();
-client.commands = new Discord.Collection();
-
-// collect all voice commands
-const commandFiles = fs.readdirSync(commands_dir).filter(file => file.endsWith('.js'));
-for (const file of commandFiles) {
-	const command = require(`${commands_dir}/${file}`);
-	client.commands.set(command.name, command);
-}
-
-// delete leftover audio from previous runs
-fs.readdir(recordings_dir, (err, files) => {
-	if (err) throw err;
-
-	for (const file of files) {
-		fs.unlink(path.join(recordings_dir, file), err => {
-		if (err) throw err;
-		});
+function checkRecordingsDir() {
+	// create folder if not exists
+	if(!fs.existsSync(recordings_dir)) {
+		fs.mkdirSync(recordings_dir);
+		return;
 	}
-});
 
-async function generateOutputFile(recordings_dir, filename) {
-	fs.access(recordings_dir, fs.constants.F_OK, (err) => {
-		// create dir if it does not exist
-		if(err) {
-			fs.mkdir(recordings_dir, 0766, function(err){
-				if(err) console.log(err);
+	// delete leftover audio files
+	fs.readdir(recordings_dir, (err, files) => {
+		if (err) throw err;
+	
+		for (const file of files) {
+			fs.unlink(path.join(recordings_dir, file), err => {
+				if (err) throw err;
 			});
 		}
 	});
-
-	// use IDs instead of username cause some people have stupid emojis in their name
-	return fs.createWriteStream(filename);
 }
 
-// handleVoiceCommand(voice_command, conn, user, textChannel, voiceChannel, guildID);
 async function handleVoiceCommand(voice_command, connection, author, textChannel, voiceChannel, guildID) {
 	voice_command = voice_command.toLowerCase();
 	voice_command = voice_command.substr(voice_command.indexOf(voice_prefix));
@@ -77,6 +59,20 @@ async function handleVoiceCommand(voice_command, connection, author, textChannel
 	}
 }
 
+// ======================== Execution Start ========================
+
+const client = new Discord.Client();
+client.commands = new Discord.Collection();
+
+// collect all voice commands
+const commandFiles = fs.readdirSync(commands_dir).filter(file => file.endsWith('.js'));
+for (const file of commandFiles) {
+	const command = require(`${commands_dir}/${file}`);
+	client.commands.set(command.name, command);
+}
+
+checkRecordingsDir();
+
 // when client is ready
 client.on('ready', () => {
 	console.log(`Logged in as ${client.user.tag}!`);
@@ -87,7 +83,7 @@ client.on('message', msg => {
 	if(msg.author.bot) return;
 
 	// join command
-	if (msg.content.startsWith(prefix+'join')) {
+	if (msg.content.startsWith(text_prefix+'join')) {
 
 		const voiceChannel = msg.member.voice.channel;
 		if (!voiceChannel) {
@@ -120,7 +116,7 @@ client.on('message', msg => {
 					
 					// create an output stream so we can dump our data in a file
 					const filename = `${recordings_dir}/${voiceChannel.id}-${user.id}-${Date.now()}.pcm`;
-					const outputStream = await generateOutputFile(recordings_dir, filename);
+					const outputStream = fs.createWriteStream(filename)
 					
 					// pipe our audio data into the file stream
 					audioStream.pipe(outputStream);
@@ -161,12 +157,12 @@ client.on('message', msg => {
 	}
 
 	// leave command
-	if (msg.content.startsWith(prefix+'leave')) {
+	if (msg.content.startsWith(text_prefix+'leave')) {
 		msg.member.voice.channel.leave();
 	}
 
 	// help command
-	if (msg.content.startsWith(prefix+'help')) {
+	if (msg.content.startsWith(text_prefix+'help')) {
 		let helpEmbed = new Discord.MessageEmbed()
             .setColor('#0099ff')
             .setTitle('bababui Help :monkey:')
