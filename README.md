@@ -67,7 +67,7 @@ Have fun!
 * Create a 'config.json' file with the following variables:
     *  **voice_prefix**: the prefix to use for voice commands. For example, if this is set to 'monkey', commands will be "monkey hello" and "monkey help";
     *  **text_prefix**: the prefix to use for text commands. For example, if this is set to '!', commands will be "!join" and "!help";
-    *  **token**: the token of your bot, that you can find in 'https://<span></span>discord<span></span>.com/developers/applications/<client ID>/bot'
+    *  **token**: the token of your bot, that you can find in 'https://<span></span>discord<span></span>.com/developers/applications/\<client ID\>/bot'
     ```json
     {
         "voice_prefix": "monkey",
