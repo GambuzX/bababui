@@ -89,7 +89,7 @@ Links I found useful while developing bababui
 
 
 ## License :eyes:
-Feel free to use this bot and/or code as you wish, will be happy if it's useful to someone. 
+Feel free to use this bot and/or code as you wish. Will be happy if it's useful to someone, consider leaving a star for me to know :star2: 
 
 Am open to suggestions and available to answer any question you may have.
 
